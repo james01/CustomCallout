@@ -1,3 +1,3 @@
 # CustomCallout
 
-A description of this package.
+A customizable equivalent of UIKit's popover presentation style.
