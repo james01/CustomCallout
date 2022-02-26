@@ -8,6 +8,10 @@
 import UIKit
 
 extension CGRect {
+    var center: CGPoint {
+        return CGPoint(x: midX, y: midY)
+    }
+
     init(center: CGPoint, size: CGSize) {
         let origin = CGPoint(x: center.x - size.width/2, y: center.y - size.height/2)
         self.init(origin: origin, size: size)
@@ -23,6 +27,11 @@ extension CGRect {
 class CalloutPresentationController: UIPresentationController {
 
     let sourceView: UIView
+
+    /// The source view's frame, adjusted to the coordinate space of the container view.
+    var sourceFrame: CGRect {
+        return sourceView.convert(sourceView.bounds, to: containerView)
+    }
 
     var interactor: UIPercentDrivenInteractiveTransition?
 
@@ -57,7 +66,8 @@ class CalloutPresentationController: UIPresentationController {
 
         let arrowInset = 6 - CalloutBackgroundView.arrowHeight()
         let arrowEdgeInsets = UIEdgeInsets(top: arrowInset, left: arrowInset, bottom: arrowInset, right: arrowInset)
-        let sourceRelative = sourceView.frame.inset(by: arrowEdgeInsets).offsetBy(dx: -layoutFrame.origin.x, dy: -layoutFrame.origin.y)
+
+        let sourceRelative = sourceFrame.inset(by: arrowEdgeInsets).offsetBy(dx: -layoutFrame.origin.x, dy: -layoutFrame.origin.y)
 
         func layoutSlice(for placement: CalloutPosition.PreferredPlacement) -> (slice: CGRect, placement: CalloutPosition.ResolvedPlacement) {
             switch placement {
@@ -75,9 +85,9 @@ class CalloutPresentationController: UIPresentationController {
         func arrowOffsetForCallout(withFrame calloutFrame: CGRect, placement: CalloutPosition.ResolvedPlacement) -> CGFloat {
             switch placement {
             case .top, .bottom:
-                return sourceView.frame.midX - calloutFrame.midX
+                return sourceFrame.midX - calloutFrame.midX
             case .left, .right:
-                return sourceView.frame.midY - calloutFrame.midY
+                return sourceFrame.midY - calloutFrame.midY
             case .unknown:
                 return 0
             }
@@ -87,7 +97,7 @@ class CalloutPresentationController: UIPresentationController {
 
         for (layoutSlice, placement) in layoutSlices {
             if (layoutSlice.width >= calloutSize.width) && (layoutSlice.height >= calloutSize.height) {
-                let calloutFrame = CGRect(center: sourceView.center, size: calloutSize).offsetToFitInside(layoutSlice)
+                let calloutFrame = CGRect(center: sourceFrame.center, size: calloutSize).offsetToFitInside(layoutSlice)
                 let arrowOffset = arrowOffsetForCallout(withFrame: calloutFrame, placement: placement)
                 return CalloutPosition(frame: calloutFrame, placement: placement, arrowOffset: arrowOffset)
             }
@@ -95,7 +105,7 @@ class CalloutPresentationController: UIPresentationController {
 
         return layoutSlices
             .map({
-                let calloutFrame = CGRect(center: sourceView.center, size: calloutSize).offsetToFitInside($0.slice).intersection($0.slice)
+                let calloutFrame = CGRect(center: sourceFrame.center, size: calloutSize).offsetToFitInside($0.slice).intersection($0.slice)
                 let arrowOffset = arrowOffsetForCallout(withFrame: calloutFrame, placement: $0.placement)
                 return CalloutPosition(frame: calloutFrame, placement: $0.placement, arrowOffset: arrowOffset)
             })
