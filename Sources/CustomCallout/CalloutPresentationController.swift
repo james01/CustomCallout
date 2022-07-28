@@ -172,6 +172,7 @@ class CalloutPresentationController: UIPresentationController {
     }
 
     @objc func chromeViewTapped() {
+        containerView?.isUserInteractionEnabled = false
         if presentedViewController.isBeingPresented {
             interactor?.cancel()
         } else if !presentedViewController.isBeingDismissed {
