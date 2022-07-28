@@ -18,7 +18,7 @@ class CalloutAnimator: NSObject {
 
 extension CalloutAnimator: UIViewControllerAnimatedTransitioning {
     func transitionDuration(using ctx: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return 0.5
+        return 0.4
     }
 
     func animateTransition(using ctx: UIViewControllerContextTransitioning) {
